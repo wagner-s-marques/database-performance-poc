@@ -1,7 +1,7 @@
 # Database Performance POC [Work In Progress]
 
 ## Objective
-Evaluate PostgreSQL performance trade-offs from a backend perspective.
+Evaluate PostgreSQL performance trade-offs from a backend perspective following some performance improvements approachs.
 
 ## Scenarios
 - :white_check_mark: Baseline (no indexes)
@@ -10,14 +10,11 @@ Evaluate PostgreSQL performance trade-offs from a backend perspective.
 - :clock3: JSONB vs Relational
 - :clock3: Denormalization
 
+A lot of databases organize the data of entities using the primary key and an application can use this key to locate and retrieve data. In our `order` table exemple, an application can't use the Order ID primary key to retrieve order if it queries data solely by referencing the value of `status` and `create_at`. To perform a query such as this, the application might have to fetch and examine every order record, which could be a slow process. Many relational database support secondary indexes that is a separate data structure that's organized by one or more secondary key fields, and it indicates where the data for each indexed value is stored. **Here, in the index strategy scenario, we'll will use this approach to improve the performance of some queries**.
+
 ## Benchmark Queries
 
-This query simulates a very common backend access pattern: retrieving the most recent orders for a specific customer,
-typically used in dashboards, order history pages, or customer support tools. It combines a filter by customer_id, an
-ORDER BY created_at DESC, and a LIMIT, which makes it highly sensitive to index design.
-Without a suitable composite index, PostgreSQL is forced to scan the entire table and sort the result set, 
-leading to unnecessary I/O and CPU usage. This query is ideal for benchmarking because it clearly demonstrates the performance
-impact of proper indexing strategies versus full table scans.
+This query simulates a very common backend access pattern: retrieving the most recent orders for a specific customer, typically used in dashboards, order history pages, or customer support tools. It combines a filter by customer_id, an ORDER BY created_at DESC, and a LIMIT, which makes it highly sensitive to index design. Without a suitable composite index, PostgreSQL is forced to scan the entire table and sort the result set, leading to unnecessary I/O and CPU usage. This query is ideal for benchmarking because it clearly demonstrates the performance impact of proper indexing strategies versus full able scans.
 
 ```sql
 SELECT *
@@ -52,36 +49,15 @@ SELECT sum(amount)
 FROM orders
 WHERE created_at >= now() - interval '7 days';
 ```
-
-## Methodology
-- Same hardware
-- Same dataset
-- Same queries
-- Warm-up runs
-
 ## Results
 
-| Query | Description | Execution Time (ms) | Scenarios |
+| Query | Description | Baseline Execution Time | Indexed Execution Time |
 |------|------------|---------------------|----------|
-| Q1 | Fetch latest orders for a customer | **33.4 ms** | Baseline |
-| Q2 | Count paid orders in the last 30 days | **64.7 ms** | Baseline |
-| Q3 | Sum order amounts in the last 7 days | **70.8 ms** | Baseline |
-| Q1 | Fetch latest orders for a customer | **0.07 ms** | Index |
-| Q2 | Count paid orders in the last 30 days | **15.0 ms** | Index |
-| Q3 | Sum order amounts in the last 7 days | **95.9 ms** | Index |
-
-## Conclusions
-- Index X helps read but hurts write
-- JSONB scales worse on updates
-- Partitioning helps large time-series data
+| Q1 | Fetch latest orders for a customer | **33.4 ms** | **0.07 ms** |
+| Q2 | Count paid orders in the last 30 days | **64.7 ms** | **15.0 ms** |
+| Q3 | Sum order amounts in the last 7 days | **70.8 ms** | **95.9 ms** |
 
 ## How to reproduce
-
-Conect on database:
-
-```bash
-psql postgres://app:app@localhost:5432/appdb
-```
 
 How to run the benchmark:
 
@@ -90,6 +66,7 @@ chmod +x benchmarks/run_benchmarks.sh
 ./benchmarks/run_benchmarks.sh
 ```
 
+## Project structure
 ```
 ├── docker-compose.yml
 ├── README.md
