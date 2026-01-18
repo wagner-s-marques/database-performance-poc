@@ -1,7 +1,7 @@
 # Database Performance POC [Work In Progress]
 
 ## Objective
-Evaluate PostgreSQL performance trade-offs from a backend perspective following some performance improvements approachs.
+Evaluate PostgreSQL performance trade-offs from a backend perspective by applying different optimization strategies.
 
 ## Scenarios
 - :white_check_mark: Baseline (no indexes)
