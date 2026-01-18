@@ -1,0 +1,53 @@
+  count  
+---------
+ 1000000
+(1 row)
+
+                                                            QUERY PLAN                                                             
+-----------------------------------------------------------------------------------------------------------------------------------
+ Limit  (cost=22851.47..22851.47 rows=1 width=102) (actual time=32.003..33.388 rows=1 loops=1)
+   InitPlan 1 (returns $0)
+     ->  Limit  (cost=0.00..0.03 rows=1 width=37) (actual time=0.010..0.011 rows=1 loops=1)
+           ->  Seq Scan on orders orders_1  (cost=0.00..26643.00 rows=1000000 width=37) (actual time=0.010..0.010 rows=1 loops=1)
+   ->  Sort  (cost=22851.44..22851.45 rows=1 width=102) (actual time=32.002..33.386 rows=1 loops=1)
+         Sort Key: orders.created_at DESC
+         Sort Method: quicksort  Memory: 25kB
+         ->  Gather  (cost=1000.00..22851.43 rows=1 width=102) (actual time=0.358..33.369 rows=1 loops=1)
+               Workers Planned: 2
+               Params Evaluated: $0
+               Workers Launched: 2
+               ->  Parallel Seq Scan on orders  (cost=0.00..21851.33 rows=1 width=102) (actual time=19.699..30.216 rows=0 loops=3)
+                     Filter: (customer_id = $0)
+                     Rows Removed by Filter: 333333
+ Planning Time: 0.545 ms
+ Execution Time: 33.406 ms
+(16 rows)
+
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=26079.31..26079.32 rows=1 width=8) (actual time=62.858..64.712 rows=1 loops=1)
+   ->  Gather  (cost=26079.10..26079.31 rows=2 width=8) (actual time=62.776..64.707 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate  (cost=25079.10..25079.11 rows=1 width=8) (actual time=61.304..61.305 rows=1 loops=3)
+               ->  Parallel Seq Scan on orders  (cost=0.00..24976.33 rows=41106 width=0) (actual time=0.017..60.191 rows=32254 loops=3)
+                     Filter: ((status = 'paid'::text) AND (created_at >= (now() - '30 days'::interval)))
+                     Rows Removed by Filter: 301079
+ Planning Time: 0.070 ms
+ Execution Time: 64.731 ms
+(10 rows)
+
+                                                               QUERY PLAN                                                               
+----------------------------------------------------------------------------------------------------------------------------------------
+ Finalize Aggregate  (cost=24969.06..24969.07 rows=1 width=32) (actual time=69.329..70.738 rows=1 loops=1)
+   ->  Gather  (cost=24968.83..24969.04 rows=2 width=32) (actual time=69.283..70.732 rows=3 loops=1)
+         Workers Planned: 2
+         Workers Launched: 2
+         ->  Partial Aggregate  (cost=23968.83..23968.84 rows=1 width=32) (actual time=67.755..67.756 rows=1 loops=3)
+               ->  Parallel Seq Scan on orders  (cost=0.00..23934.67 rows=13666 width=6) (actual time=0.015..66.726 rows=11271 loops=3)
+                     Filter: (created_at >= (now() - '7 days'::interval))
+                     Rows Removed by Filter: 322062
+ Planning Time: 0.385 ms
+ Execution Time: 70.755 ms
+(10 rows)
+

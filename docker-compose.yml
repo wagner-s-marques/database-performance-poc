@@ -1,0 +1,43 @@
+services:
+  postgres_baseline:
+    image: postgres:16
+    container_name: pg_baseline
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - pg_baseline_data:/var/lib/postgresql/data
+      - ./data/seed.sql:/docker-entrypoint-initdb.d/01-seed.sql
+      - ./scenarios/baseline/init.sql:/docker-entrypoint-initdb.d/02-init.sql
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c work_mem=4MB
+      -c max_connections=100
+
+  postgres_indexes:
+    image: postgres:16
+    container_name: pg_indexes
+    environment:
+      POSTGRES_USER: app
+      POSTGRES_PASSWORD: app
+      POSTGRES_DB: appdb
+    ports:
+      - "5433:5432"
+    volumes:
+      - pg_indexes_data:/var/lib/postgresql/data
+      - ./data/seed.sql:/docker-entrypoint-initdb.d/01-seed.sql
+      - ./scenarios/indexes/init.sql:/docker-entrypoint-initdb.d/02-init.sql
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c work_mem=4MB
+      -c max_connections=100
+
+volumes:
+  pg_baseline_data:
+  pg_indexes_data:
+
