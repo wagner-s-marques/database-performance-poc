@@ -1,4 +1,4 @@
-# Database Performance POC
+# Database Performance POC [Work In Progress]
 
 ## Objective
 Evaluate PostgreSQL performance trade-offs from a backend perspective.
@@ -106,8 +106,4 @@ chmod +x benchmarks/run_benchmarks.sh
 │   ├── jsonb_vs_normalized/
 │   │   └── init.sql
 │   └── denormalization/
-│       └── init.sql
-└── backend/
-    ├── app.js | app.py | app.go
-    └── load_test/
 ```
