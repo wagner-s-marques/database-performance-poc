@@ -4,11 +4,11 @@
 Evaluate PostgreSQL performance trade-offs from a backend perspective.
 
 ## Scenarios
-- Baseline (no indexes)
-- Index strategies
-- Partitioning
-- JSONB vs Relational
-- Denormalization
+- :white_check_mark: Baseline (no indexes)
+- :white_check_mark: Index strategies
+- :clock3: Partitioning
+- :clock3: JSONB vs Relational
+- :clock3: Denormalization
 
 ## Benchmark Queries
 
@@ -61,12 +61,14 @@ WHERE created_at >= now() - interval '7 days';
 
 ## Results
 
-| Query | Description | Execution Time (ms) | Scan Type |
+| Query | Description | Execution Time (ms) | Scenarios |
 |------|------------|---------------------|----------|
-| Q1 | Fetch latest orders for a customer | **33.4 ms** | Parallel Sequential Scan |
-| Q2 | Count paid orders in the last 30 days | **64.7 ms** | Parallel Sequential Scan |
-| Q3 | Sum order amounts in the last 7 days | **70.8 ms** | Parallel Sequential Scan |
-
+| Q1 | Fetch latest orders for a customer | **33.4 ms** | Baseline |
+| Q2 | Count paid orders in the last 30 days | **64.7 ms** | Baseline |
+| Q3 | Sum order amounts in the last 7 days | **70.8 ms** | Baseline |
+| Q1 | Fetch latest orders for a customer | **0.07 ms** | Index |
+| Q2 | Count paid orders in the last 30 days | **15.0 ms** | Index |
+| Q3 | Sum order amounts in the last 7 days | **95.9 ms** | Index |
 
 ## Conclusions
 - Index X helps read but hurts write

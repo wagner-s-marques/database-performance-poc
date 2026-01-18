@@ -1,4 +1,3 @@
-
 -- Index for Query 1:
 -- Fetch latest orders for a customer ordered by created_at
 CREATE INDEX idx_orders_customer_created_at
